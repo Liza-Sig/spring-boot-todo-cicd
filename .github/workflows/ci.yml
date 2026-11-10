@@ -23,4 +23,19 @@ jobs:
           cache: maven
 
       - name: Build and test
+        id: build
         run: mvn --batch-mode clean verify
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: todo-application
+          path: target/*.jar
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Notify build result
+        if: always()
+        run: |
+          echo "## CI build result: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
